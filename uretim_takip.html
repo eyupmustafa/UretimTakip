@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Üretim Takip</title>
+<style>
+  :root{
+    --bg: #f4f2ec;
+    --panel: #ffffff;
+    --panel-2: #f1eee4;
+    --line: #e2ddcd;
+    --ink: #262119;
+    --ink-dim: #8a8270;
+    --accent: #b8842e;
+    --accent-dim: #e9d9b6;
+    --ok: #2f9e5c;
+    --danger: #c1503a;
+    --tab-bg: #eae6d8;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1100px 500px at 15% -10%, rgba(184,132,46,0.07), transparent 60%),
+      var(--bg);
+    color:var(--ink);
+    font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+    min-height:100vh;
+    padding: 28px 16px 60px;
+  }
+
+  .wrap{ max-width: 620px; margin: 0 auto; }
+
+  /* Tabs */
+  .tabs{
+    display:flex;
+    gap: 6px;
+    background: var(--tab-bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 5px;
+    margin-bottom: 24px;
+  }
+  
+  .tab-btn{
+    flex:1;
+    border:none;
+    background:transparent;
+    color: var(--ink-dim);
+    font-family:inherit;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 8px;
+    border-radius: 8px;
+    cursor:pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .tab-btn.active{
+    background: var(--panel);
+    color: var(--ink);
+    box-shadow: 0 4px 12px -6px rgba(0,0,0,0.4);
+  }
+  .tab-dot{
+    display:inline-block;
+    width:7px; height:7px;
+    border-radius:50%;
+    margin-right:6px;
+    vertical-align:middle;
+  }
+  #tabCile .tab-dot{ background:#e8b23c; }
+  #tabBukum .tab-dot{ background:#3f6b52; }
+
+  .module{ display:none; }
+  .module.active{ display:block; }
+  #module-bukum{ --accent: #3f6b52; --accent-dim: #cfe3d5; }
+
+  /* Header */
+  header{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    margin-bottom: 22px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .eyebrow{
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin: 0 0 6px;
+  }
+  h1{
+    font-size: 22px;
+    margin: 0;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height:1.2;
+  }
+  .date-field{ text-align:right; }
+  .date-field label{
+    display:block;
+    font-size: 10px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color: var(--ink-dim);
+    margin-bottom: 4px;
+  }
+  .date-field input{
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    width: 150px;
+    color-scheme: light;
+  }
+
+  /* Table card */
+  .card{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 16px 32px -18px rgba(80,70,40,0.18);
+  }
+
+  table{ width:100%; border-collapse: collapse; }
+  thead th{
+    background: var(--panel-2);
+    text-align:left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-dim);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  thead th.num{ text-align:right; }
+
+  tbody tr{ border-bottom: 1px solid var(--line); transition: background 0.15s; }
+  tbody tr:last-child{ border-bottom:none; }
+  tbody tr:hover{ background: rgba(184,132,46,0.06); }
+
+  td{ padding: 9px 16px; font-size: 14.5px; vertical-align: middle; }
+  td.name{ font-weight: 600; color: var(--ink); }
+  .idx{
+    display:inline-block; width:18px; color: var(--accent);
+    font-variant-numeric: tabular-nums; font-size: 11px; margin-right: 8px; opacity:0.6;
+    flex-shrink:0;
+  }
+  .name-row{ display:flex; align-items:center; }
+  .name-input{
+    flex:1;
+    min-width: 90px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--ink);
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 14.5px;
+    font-family: inherit;
+  }
+  .name-input:focus{ outline:none; border-color: var(--accent); background: var(--panel-2); }
+  .name-input::placeholder{ color: #b9b3a0; font-weight:400; }
+
+  td.td-del{ padding: 9px 6px 9px 0; width: 30px; }
+  .row-del{
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--ink-dim);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    padding:0;
+    opacity: 0.5;
+    transition: opacity 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .row-del:hover{ opacity:1; border-color: var(--danger); color: var(--danger); }
+  .row-del svg{ width:14px; height:14px; }
+
+  .add-row-btn{
+    width:100%;
+    background: transparent;
+    border: 1.5px dashed var(--line);
+    color: var(--ink-dim);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 11px;
+    border-radius: 10px;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    margin-top: 10px;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .add-row-btn:hover{ border-color: var(--accent); color: var(--accent); background: var(--panel-2); }
+  .add-row-btn svg{ width:15px; height:15px; }
+
+  .sub{
+    display:block;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--ink-dim);
+    margin-top: 1px;
+  }
+
+  td.val{ text-align:right; }
+  .num-input{
+    width: 84px;
+    text-align:right;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 14.5px;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .num-input:focus{ outline:none; border-color: var(--accent); background: #eef5ee; }
+  .num-input::placeholder{ color: #b9b3a0; }
+
+  .qty-wrap{ display:inline-flex; align-items:center; gap:6px; }
+  .qty-wrap .num-input{ width: 84px; padding-right: 10px; }
+  .qty-wrap .suffix{
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--ink-dim);
+    pointer-events: none;
+  }
+
+  .unit-input{
+    width: 52px;
+    text-align:center;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--ink-dim);
+    border-radius: 6px;
+    padding: 5px 4px;
+    font-size: 12.5px;
+    font-family: inherit;
+  }
+  .unit-input:focus{ outline:none; border-color: var(--line); background: var(--panel-2); }
+
+  .note-input{
+    width: 100%;
+    min-width: 90px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--ink-dim);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 12.5px;
+    font-family: inherit;
+  }
+  .note-input:focus{ outline:none; border-color: var(--line); background: var(--panel-2); color: var(--ink); }
+  .note-input::placeholder{ color: #c2bca8; }
+
+  tfoot td{
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 800;
+    background: var(--panel-2);
+    border-top: 2px solid var(--accent-dim);
+  }
+  tfoot td.val{
+    text-align:right;
+    color: var(--accent);
+    font-size: 20px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Actions */
+  .actions{ display:flex; gap: 10px; margin-top: 18px; }
+  button{
+    font-family: inherit; font-size: 14px; font-weight: 700;
+    border-radius: 12px; border: 1px solid var(--line);
+    padding: 13px 18px; cursor: pointer;
+    display:flex; align-items:center; justify-content:center; gap: 8px;
+    transition: transform 0.1s, background 0.15s, border-color 0.15s;
+  }
+  button:active{ transform: scale(0.98); }
+
+  .copy-btn{
+    flex: 1;
+    background: linear-gradient(180deg, #27c26b, #1fa85b);
+    border-color: #1fa85b;
+    color: #06210f;
+  }
+  .copy-btn:hover{ filter: brightness(1.06); }
+  .copy-btn.copied{ background: var(--ok); }
+
+  .clear-btn{ background: var(--panel-2); color: var(--ink-dim); }
+  .clear-btn:hover{ border-color: var(--danger); color: var(--danger); }
+
+  .hint{ text-align:center; font-size: 11.5px; color: var(--ink-dim); margin-top: 12px; }
+
+  svg{ width:16px; height:16px; flex-shrink:0; }
+
+  @media (max-width: 420px){
+    h1{ font-size: 19px; }
+    td, thead th{ padding: 9px 10px; }
+    .num-input{ width: 78px; }
+    .unit-input{ display:none; }
+    th.th-unit{ display:none; }
+    td.td-unit{ display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tabCile" data-target="module-cile"><span class="tab-dot"></span>Çile Aktarma</button>
+    <button class="tab-btn" id="tabBukum" data-target="module-bukum"><span class="tab-dot"></span>Büküm Üretimi</button>
+  </div>
+
+  <!-- MODULE 1: ÇİLE AKTARMA -->
+  <section class="module active" id="module-cile">
+    <header>
+      <div>
+        <p class="eyebrow">Üretim Takip</p>
+        <h1>Çile Aktarma Üretimi</h1>
+      </div>
+      <div class="date-field">
+        <label for="tarihCile">Tarih</label>
+        <input type="date" id="tarihCile">
+      </div>
+    </header>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr><th>İplik Adı</th><th class="num">Kğ</th><th></th></tr>
+        </thead>
+        <tbody id="tbodyCile"></tbody>
+        <tfoot>
+          <tr><td>Toplam Kğ</td><td class="val" id="toplamCile">0</td><td></td></tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <button class="add-row-btn" id="addCile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>
+      İplik Ekle
+    </button>
+
+    <div class="actions">
+      <button class="copy-btn" id="copyCile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <span class="copy-label">Tabloyu Kopyala</span>
+      </button>
+      <button class="clear-btn" id="clearCile" title="Tümünü Temizle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg>
+      </button>
+    </div>
+    <p class="hint">Kopyala butonu tüm tabloyu WhatsApp'a yapıştırmaya hazır metin olarak panoya alır.</p>
+  </section>
+
+  <!-- MODULE 2: BÜKÜM ÜRETİMİ -->
+  <section class="module" id="module-bukum">
+    <header>
+      <div>
+        <p class="eyebrow">Üretim Takip</p>
+        <h1>Büküm Üretimi</h1>
+      </div>
+      <div class="date-field">
+        <label for="tarihBukum">Tarih</label>
+        <input type="date" id="tarihBukum">
+      </div>
+    </header>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>İplik Adı</th>
+            <th class="num">Miktar</th>
+            <th class="num th-unit">Birim</th>
+            <th>Açıklama</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tbodyBukum"></tbody>
+        <tfoot>
+          <tr><td colspan="3">Genel Toplam</td><td class="val" id="toplamBukum">0</td><td></td></tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <button class="add-row-btn" id="addBukum">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>
+      Ürün Ekle
+    </button>
+
+    <div class="actions">
+      <button class="copy-btn" id="copyBukum">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <span class="copy-label">Tabloyu Kopyala</span>
+      </button>
+      <button class="clear-btn" id="clearBukum" title="Tümünü Temizle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg>
+      </button>
+    </div>
+    <p class="hint">Kopyala butonu tüm tabloyu WhatsApp'a yapıştırmaya hazır metin olarak panoya alır.</p>
+  </section>
+
+</div>
+
+<script>
+/* ---------- ORTAK ---------- */
+function fmt(n){ return n.toLocaleString('tr-TR', {maximumFractionDigits: 2}); }
+function parseNum(v){ const n = parseFloat(String(v).replace(',', '.')); return isNaN(n) ? 0 : n; }
+
+/* ---------- TAB SWITCH ---------- */
+const tabBtns = document.querySelectorAll('.tab-btn');
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
+    document.getElementById(btn.dataset.target).classList.add('active');
+  });
+});
+
+/* ---------- MODULE 1: ÇİLE AKTARMA ---------- */
+const iplikler = [
+  "LOTUS","RAYONEL","BRENDİ","OLİPS","MULERRY","LACCOS","GABRİEL","İNFİNİTY",
+  "SİRİUS","KAŞMİRA","NEVA","PAROS","SİSAM","CONTES","VARMENT","HEAVEN",
+  "MİNK","İMPLUS-C","LAMSLOOK--","RAYO--LON","PAMİRA","OLİMPUS","AVVA",
+  "BOBİN  BOYA  AKTARMA","ÇİLE AKTARMA"
+];
+
+const tbodyCile = document.getElementById('tbodyCile');
+const toplamCileEl = document.getElementById('toplamCile');
+const trashSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg>`;
+
+function renumberIdx(tbody){
+  tbody.querySelectorAll('tr').forEach((tr, i) => {
+    const idx = tr.querySelector('.idx');
+    if(idx) idx.textContent = String(i+1).padStart(2,'0');
+  });
+}
+
+function createRowCile(ad = ''){
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="name"><div class="name-row"><span class="idx">00</span><input type="text" class="name-input" placeholder="İplik adı" value="${ad}"></div></td>
+    <td class="val"><div class="qty-wrap"><input type="number" class="num-input" placeholder="0" step="any" inputmode="decimal"><span class="suffix">kg</span></div></td>
+    <td class="td-del"><button class="row-del" type="button" title="Satırı sil">${trashSvg}</button></td>
+  `;
+  tbodyCile.appendChild(tr);
+  renumberIdx(tbodyCile);
+}
+
+iplikler.forEach(ad => createRowCile(ad));
+
+function hesaplaCile(){
+  let toplam = 0;
+  tbodyCile.querySelectorAll('.num-input').forEach(inp => toplam += parseNum(inp.value));
+  toplamCileEl.textContent = fmt(toplam);
+}
+tbodyCile.addEventListener('input', hesaplaCile);
+tbodyCile.addEventListener('click', (e) => {
+  const btn = e.target.closest('.row-del');
+  if(!btn) return;
+  btn.closest('tr').remove();
+  renumberIdx(tbodyCile);
+  hesaplaCile();
+});
+document.getElementById('tarihCile').valueAsDate = new Date();
+
+document.getElementById('addCile').addEventListener('click', () => {
+  createRowCile('');
+  const rows = tbodyCile.querySelectorAll('.name-input');
+  rows[rows.length - 1].focus();
+});
+
+document.getElementById('clearCile').addEventListener('click', () => {
+  tbodyCile.querySelectorAll('.num-input').forEach(inp => inp.value = '');
+  hesaplaCile();
+});
+
+document.getElementById('copyCile').addEventListener('click', (e) => {
+  const tarihVal = document.getElementById('tarihCile').value;
+  let tarihStr = '';
+  if(tarihVal){ const [y,m,d] = tarihVal.split('-'); tarihStr = `${d}.${m}.${y}`; }
+
+  let lines = [`ÇİLE AKTARMA ÜRETİMİ${tarihStr ? ' - ' + tarihStr : ''}`, ''];
+  tbodyCile.querySelectorAll('tr').forEach(tr => {
+    const nameInp = tr.querySelector('.name-input');
+    const qtyInp = tr.querySelector('.num-input');
+    const v = parseNum(qtyInp.value);
+    const ad = nameInp.value.trim();
+    if(v !== 0 && ad) lines.push(`${ad}: ${fmt(v)} Kğ`);
+  });
+  lines.push('', `TOPLAM: ${toplamCileEl.textContent} Kğ`);
+
+  kopyalaMetin(lines.join('\n'), e.currentTarget);
+});
+
+/* ---------- MODULE 2: BÜKÜM ÜRETİMİ ---------- */
+const bukumUrunler = [
+  { ad: "KAŞMİRA 3/30", birim: "KĞ", not_: "" },
+  { ad: "PAMİRA 2/20",  birim: "KĞ", not_: "" },
+  { ad: "İMPLUS 2/28",  birim: "KĞ", not_: "" },
+  { ad: "OLİMPUS 2/28", birim: "KĞ", not_: "" },
+  { ad: "OLİPS 2/24",   birim: "KĞ", not_: "" },
+  { ad: "WİNPLUS",      birim: "KĞ", not_: "" },
+  { ad: "LAMSLOOK",     birim: "KĞ", not_: "" },
+  { ad: "HEAVEN",       birim: "KĞ", not_: "" }
+];
+
+const tbodyBukum = document.getElementById('tbodyBukum');
+const toplamBukumEl = document.getElementById('toplamBukum');
+
+function createRowBukum(u = {}){
+  const ad = u.ad || '', birim = u.birim || 'KĞ', not_ = u.not_ || '';
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="name"><div class="name-row"><span class="idx">00</span><input type="text" class="name-input" placeholder="Ürün adı" value="${ad}"></div></td>
+    <td class="val"><div class="qty-wrap"><input type="number" class="num-input bukum-qty" placeholder="0" step="any" inputmode="decimal"><span class="suffix">kg</span></div></td>
+    <td class="td-unit"><input type="text" class="unit-input" value="${birim}"></td>
+    <td><input type="text" class="note-input" placeholder="Açıklama girin" value="${not_}"></td>
+    <td class="td-del"><button class="row-del" type="button" title="Satırı sil">${trashSvg}</button></td>
+  `;
+  tbodyBukum.appendChild(tr);
+  renumberIdx(tbodyBukum);
+}
+
+bukumUrunler.forEach(u => createRowBukum(u));
+
+function hesaplaBukum(){
+  let toplam = 0;
+  tbodyBukum.querySelectorAll('.bukum-qty').forEach(inp => toplam += parseNum(inp.value));
+  toplamBukumEl.textContent = fmt(toplam);
+}
+tbodyBukum.addEventListener('input', hesaplaBukum);
+tbodyBukum.addEventListener('click', (e) => {
+  const btn = e.target.closest('.row-del');
+  if(!btn) return;
+  btn.closest('tr').remove();
+  renumberIdx(tbodyBukum);
+  hesaplaBukum();
+});
+document.getElementById('tarihBukum').valueAsDate = new Date();
+
+document.getElementById('addBukum').addEventListener('click', () => {
+  createRowBukum({ birim: 'KĞ' });
+  const rows = tbodyBukum.querySelectorAll('.name-input');
+  rows[rows.length - 1].focus();
+});
+
+document.getElementById('clearBukum').addEventListener('click', () => {
+  tbodyBukum.querySelectorAll('.bukum-qty').forEach(inp => inp.value = '');
+  hesaplaBukum();
+});
+
+document.getElementById('copyBukum').addEventListener('click', (e) => {
+  const tarihVal = document.getElementById('tarihBukum').value;
+  let tarihStr = '';
+  if(tarihVal){ const [y,m,d] = tarihVal.split('-'); tarihStr = `${d}.${m}.${y}`; }
+
+  let lines = [`BÜKÜM ÜRETİMİ${tarihStr ? ' - ' + tarihStr : ''}`, ''];
+  tbodyBukum.querySelectorAll('tr').forEach(tr => {
+    const nameInp = tr.querySelector('.name-input');
+    const qtyInp = tr.querySelector('.bukum-qty');
+    const unitInp = tr.querySelector('.unit-input');
+    const noteInp = tr.querySelector('.note-input');
+    const v = parseNum(qtyInp.value);
+    const ad = nameInp.value.trim();
+    if(v !== 0 && ad){
+      let line = `${ad}: ${fmt(v)} ${unitInp.value || ''}`.trim();
+      if(noteInp.value.trim()) line += ` (${noteInp.value.trim()})`;
+      lines.push(line);
+    }
+  });
+  lines.push('', `GENEL TOPLAM: ${toplamBukumEl.textContent} KĞ`);
+
+  kopyalaMetin(lines.join('\n'), e.currentTarget);
+});
+
+/* ---------- KOPYALAMA ---------- */
+function kopyalaMetin(text, btn){
+  const label = btn.querySelector('.copy-label');
+  const oldLabel = label.textContent;
+  const finish = () => {
+    btn.classList.add('copied');
+    label.textContent = 'Kopyalandı ✓';
+    setTimeout(() => { btn.classList.remove('copied'); label.textContent = oldLabel; }, 1600);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(finish).catch(() => fallbackCopy(text, finish));
+  } else {
+    fallbackCopy(text, finish);
+  }
+}
+function fallbackCopy(text, cb){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  cb();
+}
+</script>
+
+</body>
+</html>
