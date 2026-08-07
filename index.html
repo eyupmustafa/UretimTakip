@@ -941,6 +941,11 @@
       renumberIdx(tbodyKule);
     }
 
+    const kuleUrunler = [
+      { ad: "Karan 4 Şardon", birim: "KĞ", not_: "" }
+    ];
+    kuleUrunler.forEach(u => createRowKule(u));
+
     function hesaplaKule() {
       let toplam = 0;
       tbodyKule.querySelectorAll('.kule-qty').forEach(inp => toplam += parseNum(inp.value));
