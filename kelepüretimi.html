@@ -528,11 +528,8 @@
   <div class="wrap">
 
     <div class="tabs">
-      <button class="tab-btn active" id="tabCile" data-target="module-cile"><span class="tab-dot"></span>Çile
-        Aktarma</button>
-      <button class="tab-btn" id="tabBukum" data-target="module-bukum"><span class="tab-dot"></span>Büküm
-        Üretimi</button>
-      <button class="tab-btn" id="tabKule" data-target="module-kule"><span class="tab-dot"></span>Kule Üretimi</button>
+      <button class="tab-btn active" id="tabCile" data-target="module-cile"><span class="tab-dot"></span>Kelep Üretimi</button>
+ 
     </div>
 
     <!-- MODULE 1: ÇİLE AKTARMA -->
@@ -540,7 +537,7 @@
       <header>
         <div>
           <p class="eyebrow">Üretim Takip</p>
-          <h1>Çile Aktarma Üretimi</h1>
+          <h1>Kelep Üretimi</h1>
         </div>
         <div class="date-field">
           <label for="tarihCile">Tarih</label>
@@ -600,135 +597,7 @@
         gibi tablo görüntüsü gider.</p>
     </section>
 
-    <!-- MODULE 2: BÜKÜM ÜRETİMİ -->
-    <section class="module" id="module-bukum">
-      <header>
-        <div>
-          <p class="eyebrow">Üretim Takip</p>
-          <h1>Büküm Üretimi</h1>
-        </div>
-        <div class="date-field">
-          <label for="tarihBukum">Tarih</label>
-          <input type="date" id="tarihBukum">
-        </div>
-      </header>
-
-      <div class="card">
-        <table>
-          <thead>
-            <tr>
-              <th>İplik Adı</th>
-              <th class="num">Miktar</th>
-              <th class="num th-unit">Birim</th>
-              <th>Açıklama</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="tbodyBukum"></tbody>
-          <tfoot>
-            <tr>
-              <td colspan="3">Genel Toplam</td>
-              <td class="val" id="toplamBukum">0</td>
-              <td></td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-
-      <button class="add-row-btn" id="addBukum">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
-          stroke-linejoin="round">
-          <path d="M12 5v14M5 12h14"></path>
-        </svg>
-        Ürün Ekle
-      </button>
-
-      <div class="actions">
-        <button class="copy-btn" id="copyBukum">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
-            stroke-linejoin="round">
-            <rect x="9" y="9" width="12" height="12" rx="2"></rect>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-          </svg>
-          <span class="copy-label">Tabloyu Kopyala</span>
-        </button>
-        <button class="clear-btn" id="clearBukum" title="Tümünü Temizle">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
-            stroke-linejoin="round">
-            <path d="M3 6h18"></path>
-            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
-          </svg>
-        </button>
-      </div>
-      <p class="hint">Kopyala butonu tabloyu görsel (resim) olarak panoya alır — WhatsApp'a yapıştırınca Excel'de olduğu
-        gibi tablo görüntüsü gider.</p>
-    </section>
-
-    <!-- MODULE 3: KULE ÜRETİMİ -->
-    <section class="module" id="module-kule">
-      <header>
-        <div>
-          <p class="eyebrow">Üretim Takip</p>
-          <h1>Kule Üretimi</h1>
-        </div>
-        <div class="date-field">
-          <label for="tarihKule">Tarih</label>
-          <input type="date" id="tarihKule">
-        </div>
-      </header>
-
-      <div class="card">
-        <table>
-          <thead>
-            <tr>
-              <th>İplik Adı</th>
-              <th class="num">Miktar</th>
-              <th class="num th-unit">Birim</th>
-              <th>Açıklama</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="tbodyKule"></tbody>
-          <tfoot>
-            <tr>
-              <td colspan="3">Genel Toplam</td>
-              <td class="val" id="toplamKule">0</td>
-              <td></td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-
-      <button class="add-row-btn" id="addKule">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
-          stroke-linejoin="round">
-          <path d="M12 5v14M5 12h14"></path>
-        </svg>
-        Ürün Ekle
-      </button>
-
-      <div class="actions">
-        <button class="copy-btn" id="copyKule">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
-            stroke-linejoin="round">
-            <rect x="9" y="9" width="12" height="12" rx="2"></rect>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-          </svg>
-          <span class="copy-label">Tabloyu Kopyala</span>
-        </button>
-        <button class="clear-btn" id="clearKule" title="Tümünü Temizle">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
-            stroke-linejoin="round">
-            <path d="M3 6h18"></path>
-            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
-          </svg>
-        </button>
-      </div>
-      <p class="hint">Kopyala butonu tabloyu görsel (resim) olarak panoya alır — WhatsApp'a yapıştırınca Excel'de olduğu
-        gibi tablo görüntüsü gider.</p>
-    </section>
+  
 
   </div>
 
