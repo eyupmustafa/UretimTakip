@@ -482,6 +482,17 @@
       color: var(--danger);
     }
 
+    .reset-btn {
+      background: var(--panel-2);
+      color: var(--ink-dim);
+      flex: 0 0 auto;
+    }
+
+    .reset-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
     .hint {
       text-align: center;
       font-size: 11.5px;
@@ -595,6 +606,13 @@
             <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
           </svg>
         </button>
+        <button class="reset-btn" id="resetCile" title="Varsayılanlara Sıfırla">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+            <path d="M3 4v5h5"></path>
+          </svg>
+        </button>
       </div>
       <p class="hint">Kopyala butonu tabloyu görsel (resim) olarak panoya alır — WhatsApp'a yapıştırınca Excel'de olduğu
         gibi tablo görüntüsü gider.</p>
@@ -658,6 +676,13 @@
             <path d="M3 6h18"></path>
             <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+          </svg>
+        </button>
+        <button class="reset-btn" id="resetBukum" title="Varsayılanlara Sıfırla">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+            <path d="M3 4v5h5"></path>
           </svg>
         </button>
       </div>
@@ -725,6 +750,13 @@
             <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
           </svg>
         </button>
+        <button class="reset-btn" id="resetKule" title="Varsayılanlara Sıfırla">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+            <path d="M3 4v5h5"></path>
+          </svg>
+        </button>
       </div>
       <p class="hint">Kopyala butonu tabloyu görsel (resim) olarak panoya alır — WhatsApp'a yapıştırınca Excel'de olduğu
         gibi tablo görüntüsü gider.</p>
@@ -736,6 +768,36 @@
     /* ---------- ORTAK ---------- */
     function fmt(n) { return n.toLocaleString('tr-TR', { maximumFractionDigits: 2 }); }
     function parseNum(v) { const n = parseFloat(String(v).replace(',', '.')); return isNaN(n) ? 0 : n; }
+
+    /* ---------- KALICI KAYIT (localStorage) ---------- */
+    function saveModule(storageKey, tbody, fields) {
+      const rows = [];
+      tbody.querySelectorAll('tr').forEach(tr => {
+        const row = {};
+        fields.forEach(f => {
+          const el = tr.querySelector(f.selector);
+          row[f.name] = el ? el.value : '';
+        });
+        rows.push(row);
+      });
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(rows));
+      } catch (e) {
+        console.warn('Kaydedilemedi:', e);
+      }
+    }
+
+    function loadModule(storageKey) {
+      try {
+        const raw = localStorage.getItem(storageKey);
+        if (!raw) return null;
+        const data = JSON.parse(raw);
+        if (!Array.isArray(data)) return null;
+        return data;
+      } catch (e) {
+        return null;
+      }
+    }
 
     /* ---------- TAB SWITCH ---------- */
     const tabBtns = document.querySelectorAll('.tab-btn');
@@ -767,44 +829,70 @@
       });
     }
 
-    function createRowCile(ad = '') {
+    const CILE_KEY = 'uretimTakip_cile_v1';
+    const CILE_FIELDS = [
+      { name: 'ad', selector: '.name-input' }
+    ];
+    function saveCile() { saveModule(CILE_KEY, tbodyCile, CILE_FIELDS); }
+
+    function createRowCile(u = {}) {
+      if (typeof u === 'string') u = { ad: u };
+      const ad = u.ad || '', qty = u.qty || '', not_ = u.not_ || '';
       const tr = document.createElement('tr');
       tr.innerHTML = `
     <td class="name"><div class="name-row"><span class="idx">00</span><input type="text" class="name-input" placeholder="İplik adı" value="${ad}"></div></td>
-    <td class="val"><div class="qty-wrap"><input type="number" class="num-input" placeholder="0" step="any" inputmode="decimal"><span class="suffix">kg</span></div></td>
-    <td><input type="text" class="note-input" placeholder="Açıklama girin"></td>
+    <td class="val"><div class="qty-wrap"><input type="number" class="num-input" placeholder="0" step="any" inputmode="decimal" value="${qty}"><span class="suffix">kg</span></div></td>
+    <td><input type="text" class="note-input" placeholder="Açıklama girin" value="${not_}"></td>
     <td class="td-del"><button class="row-del" type="button" title="Satırı sil">${trashSvg}</button></td>
   `;
       tbodyCile.appendChild(tr);
       renumberIdx(tbodyCile);
     }
 
-    iplikler.forEach(ad => createRowCile(ad));
+    const kayitliCile = loadModule(CILE_KEY);
+    if (kayitliCile && kayitliCile.length) {
+      kayitliCile.forEach(u => createRowCile(u));
+    } else {
+      iplikler.forEach(ad => createRowCile(ad));
+    }
 
     function hesaplaCile() {
       let toplam = 0;
       tbodyCile.querySelectorAll('.num-input').forEach(inp => toplam += parseNum(inp.value));
       toplamCileEl.textContent = fmt(toplam);
     }
-    tbodyCile.addEventListener('input', hesaplaCile);
+    tbodyCile.addEventListener('input', () => { hesaplaCile(); saveCile(); });
     tbodyCile.addEventListener('click', (e) => {
       const btn = e.target.closest('.row-del');
       if (!btn) return;
+      if (!confirm('Bu iplik satırını silmek istediğinize emin misiniz?')) return;
       btn.closest('tr').remove();
       renumberIdx(tbodyCile);
       hesaplaCile();
+      saveCile();
     });
     document.getElementById('tarihCile').valueAsDate = new Date();
+    hesaplaCile();
 
     document.getElementById('addCile').addEventListener('click', () => {
       createRowCile('');
       const rows = tbodyCile.querySelectorAll('.name-input');
       rows[rows.length - 1].focus();
+      saveCile();
     });
 
     document.getElementById('clearCile').addEventListener('click', () => {
       tbodyCile.querySelectorAll('.num-input').forEach(inp => inp.value = '');
       hesaplaCile();
+      saveCile();
+    });
+
+    document.getElementById('resetCile').addEventListener('click', () => {
+      if (!confirm('Çile Aktarma listesini varsayılan iplik listesine sıfırlamak istediğinize emin misiniz? Eklediğiniz/sildiğiniz tüm değişiklikler kaybolacak.')) return;
+      tbodyCile.innerHTML = '';
+      iplikler.forEach(ad => createRowCile(ad));
+      hesaplaCile();
+      saveCile();
     });
 
     document.getElementById('copyCile').addEventListener('click', (e) => {
@@ -852,12 +940,19 @@
     const tbodyBukum = document.getElementById('tbodyBukum');
     const toplamBukumEl = document.getElementById('toplamBukum');
 
+    const BUKUM_KEY = 'uretimTakip_bukum_v1';
+    const BUKUM_FIELDS = [
+      { name: 'ad', selector: '.name-input' },
+      { name: 'birim', selector: '.unit-input' }
+    ];
+    function saveBukum() { saveModule(BUKUM_KEY, tbodyBukum, BUKUM_FIELDS); }
+
     function createRowBukum(u = {}) {
-      const ad = u.ad || '', birim = u.birim || 'KĞ', not_ = u.not_ || '';
+      const ad = u.ad || '', birim = u.birim || 'KĞ', not_ = u.not_ || '', qty = u.qty || '';
       const tr = document.createElement('tr');
       tr.innerHTML = `
     <td class="name"><div class="name-row"><span class="idx">00</span><input type="text" class="name-input" placeholder="Ürün adı" value="${ad}"></div></td>
-    <td class="val"><div class="qty-wrap"><input type="number" class="num-input bukum-qty" placeholder="0" step="any" inputmode="decimal"><span class="suffix">kg</span></div></td>
+    <td class="val"><div class="qty-wrap"><input type="number" class="num-input bukum-qty" placeholder="0" step="any" inputmode="decimal" value="${qty}"><span class="suffix">kg</span></div></td>
     <td class="td-unit"><input type="text" class="unit-input" value="${birim}"></td>
     <td><input type="text" class="note-input" placeholder="Açıklama girin" value="${not_}"></td>
     <td class="td-del"><button class="row-del" type="button" title="Satırı sil">${trashSvg}</button></td>
@@ -866,32 +961,50 @@
       renumberIdx(tbodyBukum);
     }
 
-    bukumUrunler.forEach(u => createRowBukum(u));
+    const kayitliBukum = loadModule(BUKUM_KEY);
+    if (kayitliBukum && kayitliBukum.length) {
+      kayitliBukum.forEach(u => createRowBukum(u));
+    } else {
+      bukumUrunler.forEach(u => createRowBukum(u));
+    }
 
     function hesaplaBukum() {
       let toplam = 0;
       tbodyBukum.querySelectorAll('.bukum-qty').forEach(inp => toplam += parseNum(inp.value));
       toplamBukumEl.textContent = fmt(toplam);
     }
-    tbodyBukum.addEventListener('input', hesaplaBukum);
+    tbodyBukum.addEventListener('input', () => { hesaplaBukum(); saveBukum(); });
     tbodyBukum.addEventListener('click', (e) => {
       const btn = e.target.closest('.row-del');
       if (!btn) return;
+      if (!confirm('Bu ürün satırını silmek istediğinize emin misiniz?')) return;
       btn.closest('tr').remove();
       renumberIdx(tbodyBukum);
       hesaplaBukum();
+      saveBukum();
     });
     document.getElementById('tarihBukum').valueAsDate = new Date();
+    hesaplaBukum();
 
     document.getElementById('addBukum').addEventListener('click', () => {
       createRowBukum({ birim: 'KĞ' });
       const rows = tbodyBukum.querySelectorAll('.name-input');
       rows[rows.length - 1].focus();
+      saveBukum();
     });
 
     document.getElementById('clearBukum').addEventListener('click', () => {
       tbodyBukum.querySelectorAll('.bukum-qty').forEach(inp => inp.value = '');
       hesaplaBukum();
+      saveBukum();
+    });
+
+    document.getElementById('resetBukum').addEventListener('click', () => {
+      if (!confirm('Büküm Üretimi listesini varsayılan ürün listesine sıfırlamak istediğinize emin misiniz? Eklediğiniz/sildiğiniz tüm değişiklikler kaybolacak.')) return;
+      tbodyBukum.innerHTML = '';
+      bukumUrunler.forEach(u => createRowBukum(u));
+      hesaplaBukum();
+      saveBukum();
     });
 
     document.getElementById('copyBukum').addEventListener('click', (e) => {
@@ -927,12 +1040,19 @@
     const tbodyKule = document.getElementById('tbodyKule');
     const toplamKuleEl = document.getElementById('toplamKule');
 
+    const KULE_KEY = 'uretimTakip_kule_v1';
+    const KULE_FIELDS = [
+      { name: 'ad', selector: '.name-input' },
+      { name: 'birim', selector: '.unit-input' }
+    ];
+    function saveKule() { saveModule(KULE_KEY, tbodyKule, KULE_FIELDS); }
+
     function createRowKule(u = {}) {
-      const ad = u.ad || '', birim = u.birim || 'KĞ', not_ = u.not_ || '';
+      const ad = u.ad || '', birim = u.birim || 'KĞ', not_ = u.not_ || '', qty = u.qty || '';
       const tr = document.createElement('tr');
       tr.innerHTML = `
     <td class="name"><div class="name-row"><span class="idx">00</span><input type="text" class="name-input" placeholder="Ürün adı" value="${ad}"></div></td>
-    <td class="val"><div class="qty-wrap"><input type="number" class="num-input kule-qty" placeholder="0" step="any" inputmode="decimal"><span class="suffix">kg</span></div></td>
+    <td class="val"><div class="qty-wrap"><input type="number" class="num-input kule-qty" placeholder="0" step="any" inputmode="decimal" value="${qty}"><span class="suffix">kg</span></div></td>
     <td class="td-unit"><input type="text" class="unit-input" value="${birim}"></td>
     <td><input type="text" class="note-input" placeholder="Açıklama girin" value="${not_}"></td>
     <td class="td-del"><button class="row-del" type="button" title="Satırı sil">${trashSvg}</button></td>
@@ -946,32 +1066,50 @@
       { ad: "Y-implus", birim: "KĞ", not_: "" },
       { ad: "Sofistik", birim: "KĞ", not_: "" },
     ];
-    kuleUrunler.forEach(u => createRowKule(u));
+    const kayitliKule = loadModule(KULE_KEY);
+    if (kayitliKule && kayitliKule.length) {
+      kayitliKule.forEach(u => createRowKule(u));
+    } else {
+      kuleUrunler.forEach(u => createRowKule(u));
+    }
 
     function hesaplaKule() {
       let toplam = 0;
       tbodyKule.querySelectorAll('.kule-qty').forEach(inp => toplam += parseNum(inp.value));
       toplamKuleEl.textContent = fmt(toplam);
     }
-    tbodyKule.addEventListener('input', hesaplaKule);
+    tbodyKule.addEventListener('input', () => { hesaplaKule(); saveKule(); });
     tbodyKule.addEventListener('click', (e) => {
       const btn = e.target.closest('.row-del');
       if (!btn) return;
+      if (!confirm('Bu ürün satırını silmek istediğinize emin misiniz?')) return;
       btn.closest('tr').remove();
       renumberIdx(tbodyKule);
       hesaplaKule();
+      saveKule();
     });
     document.getElementById('tarihKule').valueAsDate = new Date();
+    hesaplaKule();
 
     document.getElementById('addKule').addEventListener('click', () => {
       createRowKule({ birim: 'KĞ' });
       const rows = tbodyKule.querySelectorAll('.name-input');
       rows[rows.length - 1].focus();
+      saveKule();
     });
 
     document.getElementById('clearKule').addEventListener('click', () => {
       tbodyKule.querySelectorAll('.kule-qty').forEach(inp => inp.value = '');
       hesaplaKule();
+      saveKule();
+    });
+
+    document.getElementById('resetKule').addEventListener('click', () => {
+      if (!confirm('Kule Üretimi listesini varsayılan ürün listesine sıfırlamak istediğinize emin misiniz? Eklediğiniz/sildiğiniz tüm değişiklikler kaybolacak.')) return;
+      tbodyKule.innerHTML = '';
+      kuleUrunler.forEach(u => createRowKule(u));
+      hesaplaKule();
+      saveKule();
     });
 
     document.getElementById('copyKule').addEventListener('click', (e) => {
