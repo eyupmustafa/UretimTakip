@@ -524,16 +524,16 @@
         display: none;
       }
 
-      }
-
-      th.th-unit {
-        display: none;
-      }
-
-      td.td-unit {
-        display: none;
-      }
     }
+
+    th.th-unit {
+      display: none;
+    }
+
+    td.td-unit {
+      display: none;
+    }
+
 
     /* OCR Toast */
     .ocr-toast {
@@ -547,13 +547,14 @@
       border-radius: 8px;
       font-size: 14px;
       font-weight: 600;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       z-index: 9999;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s;
       text-align: center;
     }
+
     .ocr-toast.show {
       opacity: 1;
     }
@@ -647,8 +648,13 @@
     }
 
     @keyframes ocr-spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     .ocr-modal-status {
@@ -682,6 +688,7 @@
       justify-content: center;
       margin-top: 24px;
     }
+
     .confirm-btn {
       flex: 1;
       padding: 10px 0;
@@ -692,18 +699,22 @@
       border: none;
       transition: background 0.15s, color 0.15s;
     }
+
     .confirm-btn.yes {
       background: var(--accent);
       color: #fff;
     }
+
     .confirm-btn.yes:hover {
       background: #a37224;
     }
+
     .confirm-btn.no {
       background: var(--panel-2);
       color: var(--ink);
       border: 1px solid var(--line);
     }
+
     .confirm-btn.no:hover {
       background: #e4e0d2;
     }
@@ -720,7 +731,9 @@
       <div class="ocr-modal-body">
         <div class="ocr-modal-icon spin" id="ocrModalIcon">⏳</div>
         <div class="ocr-modal-status" id="ocrToast">Resim kopyalandı, işleniyor...</div>
-        <div class="ocr-progress"><div class="ocr-progress-bar" id="ocrProgressBar"></div></div>
+        <div class="ocr-progress">
+          <div class="ocr-progress-bar" id="ocrProgressBar"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -729,7 +742,8 @@
     <div class="ocr-modal-card" style="max-width: 320px;">
       <div class="ocr-modal-body" style="padding: 24px;">
         <div class="ocr-modal-icon" style="color: var(--accent); font-size: 32px; margin-bottom: 12px;">⚠️</div>
-        <div class="ocr-modal-status" id="confirmMessage" style="font-size: 15.5px; line-height: 1.4; margin-bottom: 0;"></div>
+        <div class="ocr-modal-status" id="confirmMessage"
+          style="font-size: 15.5px; line-height: 1.4; margin-bottom: 0;"></div>
         <div class="confirm-btn-wrap">
           <button id="confirmNo" class="confirm-btn no">Hayır</button>
           <button id="confirmYes" class="confirm-btn yes">Evet</button>
@@ -1940,42 +1954,42 @@
       if (bestStart === -1 || bestLen < width * 0.03) return Math.round(width * 0.82);
       return Math.round(bestStart + bestLen / 2);
     }
-    
+
     function addToTable(tbody, name, qty, saveFn, calcFn, createFn) {
-        const rows = Array.from(tbody.querySelectorAll('tr'));
-        let found = false;
-        
-        // Temiz isim
-        const searchName = name.toUpperCase().replace(/\s+/g, '');
-        
-        for (const tr of rows) {
-            const nameInput = tr.querySelector('.name-input');
-            if (nameInput) {
-                const currentName = nameInput.value.toUpperCase().replace(/\s+/g, '');
-                // İsim eşleşiyorsa güncelle (Kısmi eşleşme ile de çalışabiliriz)
-                if (currentName === searchName || (currentName && searchName.includes(currentName))) {
-                    const qtyInput = tr.querySelector('.num-input');
-                    if (qtyInput) {
-                        qtyInput.value = qty;
-                        found = true;
-                        break;
-                    }
-                }
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      let found = false;
+
+      // Temiz isim
+      const searchName = name.toUpperCase().replace(/\s+/g, '');
+
+      for (const tr of rows) {
+        const nameInput = tr.querySelector('.name-input');
+        if (nameInput) {
+          const currentName = nameInput.value.toUpperCase().replace(/\s+/g, '');
+          // İsim eşleşiyorsa güncelle (Kısmi eşleşme ile de çalışabiliriz)
+          if (currentName === searchName || (currentName && searchName.includes(currentName))) {
+            const qtyInput = tr.querySelector('.num-input');
+            if (qtyInput) {
+              qtyInput.value = qty;
+              found = true;
+              break;
             }
+          }
         }
-        
-        if (!found) {
-            createFn({ ad: name });
-            const newRows = tbody.querySelectorAll('tr');
-            if (newRows.length > 0) {
-               const lastRow = newRows[newRows.length - 1];
-               const qtyInput = lastRow.querySelector('.num-input');
-               if (qtyInput) qtyInput.value = qty;
-            }
+      }
+
+      if (!found) {
+        createFn({ ad: name });
+        const newRows = tbody.querySelectorAll('tr');
+        if (newRows.length > 0) {
+          const lastRow = newRows[newRows.length - 1];
+          const qtyInput = lastRow.querySelector('.num-input');
+          if (qtyInput) qtyInput.value = qty;
         }
-        
-        calcFn();
-        saveFn();
+      }
+
+      calcFn();
+      saveFn();
     }
 
     /* ---------- CUSTOM CONFIRM ---------- */
